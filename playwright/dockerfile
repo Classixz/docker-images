@@ -1,54 +1,18 @@
-FROM ubuntu:jammy
+FROM        python:3.9-slim-buster
 
-LABEL author="Classixz" maintainer="classixz@undeaduprising.net"
-# === INSTALL Python ===
+LABEL       author="Classixz" maintainer="classixz@undeaduprising.net"
 
-RUN apt-get update && \
-    # Install Python
-    apt-get install -y python3 python3-distutils curl && \
-    update-alternatives --install /usr/bin/python python /usr/bin/python3 1 && \
-    curl -sSL https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
-    python get-pip.py && \
-    rm get-pip.py && \
-    # Feature-parity with node.js base images.
-    apt-get install -y --no-install-recommends git openssh-client gpg && \
-    # clean apt cache
-    rm -rf /var/lib/apt/lists/* && \
-    # Create the pwuser
-    adduser pwuser
+RUN         apt update \
+            && apt -y install git gcc g++ ca-certificates dnsutils curl iproute2 ffmpeg procps chromium xvfb chromium-driver wget libportaudio2 libasound-dev libdbus-glib-1-2 libstdc++6 \
+            && useradd -m -d /home/container container
 
-# === BAKE BROWSERS INTO IMAGE ===
+RUN         pip install -U playwright python-dotenv PyVirtualDisplay sounddevice soundfile
 
-ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+RUN         playwright install --with-deps chrome
 
-# 1. Add tip-of-tree Playwright package to install its browsers.
-#    The package should be built beforehand from tip-of-tree Playwright.
-COPY ./dist/*-manylinux*.whl /tmp/
+USER        container
+ENV         USER=container HOME=/home/container
+WORKDIR     /home/container
 
-# 2. Bake in browsers & deps.
-#    Browsers will be downloaded in `/ms-playwright`.
-#    Note: make sure to set 777 to the registry so that any user can access
-#    registry.
-RUN mkdir /ms-playwright && \
-    mkdir /ms-playwright-agent && \
-    cd /ms-playwright-agent && \
-    pip install virtualenv && \
-    virtualenv venv && \
-    . venv/bin/activate && \
-    # if its amd64 then install the manylinux1_x86_64 pip package
-    if [ "$(uname -m)" = "x86_64" ]; then pip install /tmp/*manylinux1_x86_64*.whl; fi && \
-    # if its arm64 then install the manylinux1_aarch64 pip package
-    if [ "$(uname -m)" = "aarch64" ]; then pip install /tmp/*manylinux_2_17_aarch64*.whl; fi && \
-    playwright mark-docker-image "${DOCKER_IMAGE_NAME_TEMPLATE}" && \
-    playwright install --with-deps && rm -rf /var/lib/apt/lists/* && \
-    rm /tmp/*.whl && \
-    rm -rf /ms-playwright-agent && \
-    chmod -R 777 /ms-playwright
-
-ENV  USER=container HOME=/home/container/
-USER container
-WORKDIR /home/container/
-
-COPY entrypoint.sh /entrypoint.sh
-
-CMD ["/bin/bash", "/entrypoint.sh"]
+COPY        ./../entrypoint.sh /entrypoint.sh
+CMD         ["/bin/bash", "/entrypoint.sh"]
