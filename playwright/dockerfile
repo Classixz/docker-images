@@ -1,18 +1,18 @@
-FROM        python:3.9-slim-buster
+FROM 		python:3.9-slim-buster
 
-LABEL       author="Classixz" maintainer="classixz@undeaduprising.net"
+LABEL 		author="Classixz" maintainer="classixz@undeaduprising.net"
 
-RUN         apt update \
-            && apt -y install git gcc g++ ca-certificates dnsutils curl iproute2 ffmpeg procps chromium xvfb chromium-driver wget libportaudio2 libasound-dev libdbus-glib-1-2 libstdc++6 \
-            && useradd -m -d /home/container container
+RUN 		apt-get update && apt-get -y install git gcc g++ ca-certificates dnsutils curl iproute2 ffmpeg procps wget libportaudio2 libasound-dev libdbus-glib-1-2 libstdc++6
 
-RUN         pip install -U playwright python-dotenv PyVirtualDisplay sounddevice soundfile
+RUN 		pip install -U playwright python-dotenv PyVirtualDisplay sounddevice soundfile
 
-RUN        	python -m playwright install --with-deps chrome
+RUN 		python -m playwright install --with-deps chrome
 
-USER        container
-ENV         USER=container HOME=/home/container
-WORKDIR     /home/container
+RUN 		useradd -m -d /home/container container
+
+USER 		container
+ENV 		USER=container HOME=/home/container
+WORKDIR 	/home/container
 
 COPY 		entrypoint.sh /entrypoint.sh
-CMD         ["/bin/bash", "/entrypoint.sh"]
+CMD			["/bin/bash", "/entrypoint.sh"]
