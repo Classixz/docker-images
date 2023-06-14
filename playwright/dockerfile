@@ -1,8 +1,8 @@
-FROM 		mcr.microsoft.com/playwright/python:v1.30.0-jammy
+FROM 		mcr.microsoft.com/playwright/python:v1.35.0-jammy
 
 LABEL 		author="Classixz" maintainer="classixz@undeaduprising.net"
 
-RUN			apt-get update -y -q
+RUN		apt-get update -y -q
 
 RUN 		apt-get install -y python3.10-venv git gcc g++ ca-certificates dnsutils curl iproute2 ffmpeg procps wget fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
 			--no-install-recommends \
@@ -15,4 +15,4 @@ ENV 		USER=container HOME=/home/container
 WORKDIR 	/home/container
 
 COPY 		entrypoint.sh /entrypoint.sh
-CMD			["/bin/bash", "/entrypoint.sh"]
+CMD		["/bin/bash", "/entrypoint.sh"]
