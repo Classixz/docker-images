@@ -1,12 +1,12 @@
-FROM 		python:3.9-slim-buster
+FROM 		mcr.microsoft.com/playwright/python:v1.30.0-jammy
 
 LABEL 		author="Classixz" maintainer="classixz@undeaduprising.net"
 
-RUN 		apt-get update && apt-get -y install git gcc g++ ca-certificates dnsutils curl iproute2 ffmpeg procps wget libportaudio2 libasound-dev libdbus-glib-1-2 libstdc++6
+RUN			apt-get update -y -q
 
-RUN 		pip install -U playwright python-dotenv PyVirtualDisplay sounddevice soundfile
-
-RUN 		python -m playwright install --with-deps chrome
+RUN 		apt-get install -y git gcc g++ ca-certificates dnsutils curl iproute2 ffmpeg procps wget fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
+			--no-install-recommends \
+			&& rm -rf /var/lib/apt/lists/*
 
 RUN 		useradd -m -d /home/container container
 
