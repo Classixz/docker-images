@@ -8,11 +8,11 @@ RUN         apt update \
 
 RUN         pip install -U playwright python-dotenv PyVirtualDisplay sounddevice soundfile
 
-RUN         playwright install --with-deps chrome
+RUN        	python -m playwright install --with-deps chrome
 
 USER        container
 ENV         USER=container HOME=/home/container
 WORKDIR     /home/container
 
-COPY        ./../entrypoint.sh /entrypoint.sh
+COPY 		entrypoint.sh /entrypoint.sh
 CMD         ["/bin/bash", "/entrypoint.sh"]
